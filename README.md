@@ -42,12 +42,15 @@ To run the project locally, follow these steps:
    ```bash
    git clone https://github.com/your-username/Expense-Tracker-2.0.git
 2. Navigate to the project directory:
+   ```bash
    cd Expense-Tracker-2.0
-3. Install dependencies:
+4. Install dependencies:
+   ```bash
    npm install
-4. Set up environment variables for MongoDB and JWT authentication:
+6. Set up environment variables for MongoDB and JWT authentication:
    Create a .env file and add your MongoDB URI and JWT secret key.
-5. Run the application:
+7. Run the application:
+   ```bash
    npm start
 
 This project is licensed under the MIT License - see the LICENSE file for details.
