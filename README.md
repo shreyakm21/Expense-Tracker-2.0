@@ -34,6 +34,50 @@ The **Expense Tracker** is a web-based application designed to help users manage
 - **Machine Learning**: Python (scikit-learn)
 - **Authentication**: JWT (JSON Web Tokens)
 
+# New Feature : Expense Categorization and Visualization
+
+## Overview
+
+This feature uses a machine learning model to classify user expenses into predefined categories based on their descriptions. It provides users with an organized view of their spending habits and visual insights using a pie chart.
+
+## Features
+
+- **Expense Categorization**: Uses machine learning to categorize expenses based on user input.
+- **Visualization**: Displays a pie chart showing the contribution of each expense category.
+
+## Implementation
+
+### Categorization
+
+- A **Naive Bayes** classification model is trained on labeled expense data to predict the category of each expense based on its description.
+- The **TF-IDF** technique is used for text vectorization, converting expense descriptions into numerical data that the model can process.
+- **LabelEncoder** is used to encode category labels for model training.
+  
+### Process
+
+1. The user enters expense descriptions and amounts.
+2. The script processes the input data.
+3. The model predicts the category of each expense based on the description.
+4. The amounts for each category are summed up to provide a total for each category.
+  
+### Visualization
+
+- A pie chart is generated to depict the contribution of each expense category, providing an easy-to-understand breakdown of user spending.
+
+## Requirements
+
+- Python 3.x
+- scikit-learn
+- pandas
+- matplotlib
+
+## Usage
+
+1. Train the Naive Bayes model with labeled expense data.
+2. Process user inputs for expense descriptions and amounts.
+3. Categorize expenses using the trained model.
+4. Generate and display a pie chart of categorized expenses.
+
 ## Installation
 
 To run the project locally, follow these steps:
