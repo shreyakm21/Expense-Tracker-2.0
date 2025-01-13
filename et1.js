@@ -63,68 +63,97 @@ function downloadPDF() {
     downloadBtn.style.display = "block";
     logoutBtn.style.display = "block";*/
 
-async function addExpense(event) {
-    event.preventDefault();
-
-    const expenseNameInput = document.getElementById("expense-name");
-    const expenseAmountInput = document.getElementById("expense-amount");
-    const expenseName = expenseNameInput.value;
-    const expenseAmount = parseFloat(expenseAmountInput.value);
-
-    expenseNameInput.value = "";
-    expenseAmountInput.value = "";
-
-    const token = localStorage.getItem('token');
-    const username = localStorage.getItem('userName');
-
-    // Fetch the user's current total expenses
-    const response = await fetch(`http://localhost:3002/api/user/expenses/${username}`, {
-        method: 'GET',
-        headers: { 'Authorization': `Bearer ${token}` }
-    });
-    const expenses = await response.json();
-    const currentTotal = expenses.reduce((sum, expense) => sum + expense.amount, 0);
-
-    // Check if adding this expense exceeds the budget
-    const userResponse = await fetch(`http://localhost:3002/api/user/${username}`, {
-        method: 'GET',
-        headers: { 'Authorization': `Bearer ${token}` }
-    });
-
-    if (!userResponse.ok) {
-        console.error("Failed to fetch user data");
-        return;
-    }
-
-    const userData = await userResponse.json();
-    const budgetLimit = userData.budgetLimit;
-
-    if (currentTotal + expenseAmount > budgetLimit) {
-        alert("Over budget! Expense not added.");
-        return;
-    }
-
-    // Add expense to the backend
-    try {
-        const addExpenseResponse = await fetch('http://localhost:3002/api/user/expenses', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ username, name: expenseName, amount: expenseAmount })
+    async function addExpense(event) {
+        event.preventDefault();
+    
+        const expenseNameInput = document.getElementById("expense-name");
+        const expenseAmountInput = document.getElementById("expense-amount");
+        const expenseName = expenseNameInput.value.trim();
+        const expenseAmount = parseFloat(expenseAmountInput.value);
+    
+        // Reset input fields
+        expenseNameInput.value = "";
+        expenseAmountInput.value = "";
+    
+        const token = localStorage.getItem('token');
+        const username = localStorage.getItem('userName');
+    
+        // Fetch the user's current expenses
+        const response = await fetch(`http://localhost:3002/api/user/expenses/${username}`, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${token}` }
         });
-
-        if (!addExpenseResponse.ok) {
-            throw new Error("Failed to add expense.");
+    
+        if (!response.ok) {
+            console.error("Failed to fetch expenses.");
+            return;
         }
-
-        renderExpenses(); // Call to render the updated expense list
-    } catch (error) {
-        console.error("Error adding expense:", error);
-        alert("An error occurred while adding the expense.");
+    
+        const expenses = await response.json();
+    
+        // Check if the expense name already exists
+        const existingExpense = expenses.find(
+            (expense) => expense.name.toLowerCase() === expenseName.toLowerCase()
+        );
+    
+        if (existingExpense) {
+            // Update the existing expense's amount
+            const updatedAmount = existingExpense.amount + expenseAmount;
+    
+            try {
+                const updateResponse = await fetch(
+                    `http://localhost:3002/api/user/expenses/${username}/${existingExpense._id}`,
+                    {
+                        method: 'PATCH',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ amount: updatedAmount }),
+                    }
+                );
+    
+                if (!updateResponse.ok) {
+                    throw new Error("Failed to update expense.");
+                }
+    
+                console.log("Expense updated successfully.");
+            } catch (error) {
+                console.error("Error updating expense:", error);
+                alert("An error occurred while updating the expense.");
+                return;
+            }
+        } else {
+            // Add the new expense
+            try {
+                const addExpenseResponse = await fetch(
+                    'http://localhost:3002/api/user/expenses',
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ username, name: expenseName, amount: expenseAmount }),
+                    }
+                );
+    
+                if (!addExpenseResponse.ok) {
+                    throw new Error("Failed to add expense.");
+                }
+    
+                console.log("Expense added successfully.");
+            } catch (error) {
+                console.error("Error adding expense:", error);
+                alert("An error occurred while adding the expense.");
+                return;
+            }
+        }
+    
+        // Refresh the expense list
+        renderExpenses();
     }
-}
+    
 
 async function deleteExpense(expenseId) {
     const token = localStorage.getItem('token');

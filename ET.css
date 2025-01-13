@@ -12,6 +12,16 @@ body {
 
 } 
 
+/* Fade-in animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
 .hero{
 	background-image: url("expense_img.jpg");
 	background-position: center;
@@ -34,6 +44,7 @@ body {
 }
 
 .container { 
+	animation: fadeIn 1s ease-in;
 	max-width: 800px; 
 	height: 800px;
 	/*top: 50%;
@@ -158,10 +169,15 @@ button {
 	cursor: pointer; 
 	font-size: 15px;
 	margin-left: 15px;
+	transition: background-color 0.3s ease, transform 0.2s ease-in-out;
 } 
 
 button:hover { 
 	background-color: #45a049; 
+	transform: scale(1.05);
+}
+button:active {
+    transform: scale(0.98); /* Slight shrink effect when clicked */
 } 
 
 .expense-table { 
@@ -171,6 +187,15 @@ button:hover {
 	width: 80%;
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
 } 
+/* Apply fade-in animation to the expense list */
+.expense-table table,
+#user-info,
+#taskbar,
+form,
+#doneBtn {
+    animation: fadeIn 1s ease-in;
+    animation-delay: 0s;
+}
 
 table { 
 	width: 100%; 
@@ -200,6 +225,16 @@ tbody td {
 	text-align: right; 
 	background-color: #f2f2f2; 
 }
+/* Smooth fade-in for the total amount */
+.total-amount {
+    animation: fadeIn 1s ease-in;
+    animation-delay: 0s;
+}
+#total-amount {
+    transition: all 0.3s ease-in-out;
+}
+
+
 #clrBtn{
 	cursor: pointer;
 	color: red;
@@ -208,4 +243,8 @@ tbody td {
 
 .cross{
 	text-decoration: line-through;
+}
+
+#user-budget {
+    transition: all 0.3s ease-in-out;
 }

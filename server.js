@@ -3,6 +3,11 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
+require('dotenv').config();
+//const User = require('./models/User');
+const bodyParser = require('body-parser');
+const categorizeRoutes = require('./routes/categorize')
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3002; // Change the port number if necessary
@@ -10,6 +15,9 @@ const JWT_SECRET = 'your_secret_key'; // Use environment variables in production
 
 app.use(cors());
 app.use(express.json());
+
+app.use(bodyParser.json()); // Ensure JSON body parsing
+app.use(categorizeRoutes);
 
 // MongoDB connection
 mongoose.connect('mongodb://localhost:27017/expense', {
@@ -230,7 +238,7 @@ app.post('/api/markAsDone', authenticate, async (req, res) => {
     }
 });
 
-app.get('/api/getSummary', authenticate, async (req, res) => {
+/*app.get('/api/getSummary', authenticate, async (req, res) => {
     const userId = req.user.userId;
 
     try {
@@ -251,7 +259,38 @@ app.get('/api/getSummary', authenticate, async (req, res) => {
         console.error('Error fetching summary:', error);
         res.status(500).json({ error: 'Error fetching summary.' });
     }
+});*/
+
+app.get('/api/getSummary', authenticate, async (req, res) => {
+    const userId = req.user.userId;
+
+    try {
+        // Find the latest summary for the user based on creation date
+        const summary = await Summary.findOne({ userId }).sort({ createdAt: -1 });
+        
+        if (!summary) {
+            return res.status(404).json({ error: 'No summary found.' });
+        }
+
+        // Map expenses to ensure the format has `date`, `name`, and `amount`
+        const formattedExpenses = summary.expenses.map(expense => ({
+            date: expense.date || null,
+            name: expense.name || '',
+            amount: expense.amount || 0
+        }));
+
+        // Respond with budget limit, savings, and formatted expenses
+        res.json({
+            budgetLimit: summary.budgetLimit,
+            savings: summary.savings,
+            expenses: formattedExpenses
+        });
+    } catch (error) {
+        console.error('Error fetching summary:', error);
+        res.status(500).json({ error: 'Error fetching summary.' });
+    }
 });
+
 
 
 app.post('/api/restartTracking', authenticate, async (req, res) => {
@@ -266,6 +305,173 @@ app.post('/api/restartTracking', authenticate, async (req, res) => {
         res.status(500).json({ error: 'Error resetting tracking.' });
     }
 });
+
+
+// Update Expense Route (PATCH) - Updates the amount of a specific expense
+app.patch('/api/user/expenses/:username/:expenseId', authenticate, async (req, res) => {
+    const { username, expenseId } = req.params;
+    const { amount } = req.body; // The new amount for the expense
+
+    try {
+        // Find the specific expense by expenseId and username
+        const expense = await Expense.findOne({ _id: expenseId, username });
+
+        if (!expense) {
+            return res.status(404).json({ error: 'Expense not found' });
+        }
+
+        // Fetch the user's current total expenses
+        const totalExpenses = await Expense.aggregate([
+            { $match: { username } },
+            { $group: { _id: null, total: { $sum: '$amount' } } }
+        ]);
+
+        const currentTotal = totalExpenses[0]?.total || 0;
+        const user = await User.findOne({ name: username });
+
+        // Check if the updated expense exceeds the budget
+        if (currentTotal - expense.amount + amount > user.budgetLimit) {
+            return res.status(400).json({ error: 'Budget exceeded' });
+        }
+
+        // Update the expense amount
+        expense.amount = amount;
+        await expense.save();
+
+        res.status(200).json(expense); // Return the updated expense
+    } catch (error) {
+        console.error("Error updating expense:", error);
+        res.status(500).json({ error: 'Error updating expense' });
+    }
+});
+
+//const path = require('path');
+const { spawn } = require('child_process');
+
+// Endpoint to execute the model
+app.post('/api/runModel', (req, res) => {
+    // Path to the Python script
+    const pythonScriptPath = path.join(__dirname, '../models/expense_model.py');
+
+    // Spawn a new Python process to run the script
+    const pythonProcess = spawn('python', [pythonScriptPath]);
+
+    pythonProcess.stdout.on('data', (data) => {
+        console.log(`stdout: ${data}`);
+    });
+
+    pythonProcess.stderr.on('data', (data) => {
+        console.error(`stderr: ${data}`);
+    });
+
+    pythonProcess.on('close', (code) => {
+        console.log(`child process exited with code ${code}`);
+        res.send({ message: 'Model executed successfully' });
+    });
+});
+
+
+//const { spawn } = require('child_process');
+
+/*app.post('/api/categorize-expenses', (req, res) => {
+    const descriptions = req.body.descriptions; // Array of expense descriptions
+    if (!descriptions || descriptions.length === 0) {
+        return res.status(400).json({ error: "Descriptions are required." });
+    }
+
+    const scriptPath = path.join(__dirname, 'models', 'expense_model.py');
+    console.log('Executing Python script with command:', `python ${scriptPath} ${descriptions.join(' ')}`);
+    const pythonProcess = spawn('python', [scriptPath, ...descriptions]);
+
+    pythonProcess.stdout.on('data', (data) => {
+        try {
+            const result = data.toString().trim();
+            if (!result) {
+                throw new Error("No output received from the Python script.");
+            }
+            console.log('Python script output:', result);
+
+            // Assuming the Python script returns data in the format: "Category:Amount\n"
+            const categorized = result.split('\n').filter(line => line).map(line => {
+                const [category, amount] = line.split(':');
+                return { 
+                    category: category.trim(), 
+                    amount: parseFloat(amount) || 0 // Convert string amount to number
+                };
+            });
+
+            res.json(categorized);
+        } catch (err) {
+            console.error("Error processing Python output:", err);
+            res.status(500).json({ error: "Failed to categorize expenses." });
+        }
+    });
+
+    pythonProcess.stderr.on('data', (data) => {
+        const errorMessage = data.toString();
+        console.error(`Python script error: ${errorMessage}`);
+        res.status(500).json({ error: `Python script error: ${errorMessage}` });
+    });
+
+    pythonProcess.on('close', (code) => {
+        if (code !== 0) {
+            console.error(`Python script exited with code ${code}`);
+            res.status(500).json({ error: `Python script exited with code ${code}` });
+        }
+    });
+});*/
+
+app.post('/api/categorize-expenses', (req, res) => {
+    const expenses = req.body.expenses;
+    if (!expenses || expenses.length === 0) {
+        return res.status(400).json({ error: "Expenses are required." });
+    }
+
+    // Format descriptions with quotes
+    const descriptionsAndAmounts = expenses
+        .map(expense => `"${expense.description}" ${expense.amount}`)
+        .join(' ');
+
+    const args = descriptionsAndAmounts.match(/"[^"]+"|\S+/g) || [];
+    console.log('Python script arguments (before spawn):', args);
+
+    const scriptPath = path.join(__dirname, 'models', 'expense_model.py');
+
+    const pythonProcess = spawn('python', [scriptPath, ...args]);
+
+    pythonProcess.stdout.on('data', (data) => {
+        try {
+            const result = data.toString().trim();
+            console.log('Python script output:', result);
+
+            const categorized = result.split('\n').map(line => {
+                const [category, amount] = line.split(':');
+                return {
+                    category: category.trim(),
+                    amount: parseFloat(amount.trim())
+                };
+            });
+
+            res.json(categorized);
+        } catch (err) {
+            console.error("Error processing Python output:", err);
+            res.status(500).json({ error: "Failed to categorize expenses." });
+        }
+    });
+
+    pythonProcess.stderr.on('data', (data) => {
+        console.error(`Python script error: ${data.toString()}`);
+        res.status(500).json({ error: data.toString() });
+    });
+
+    pythonProcess.on('close', (code) => {
+        if (code !== 0) {
+            console.error(`Python script exited with code ${code}`);
+            res.status(500).json({ error: `Python script exited with code ${code}` });
+        }
+    });
+});
+
 
 
 
