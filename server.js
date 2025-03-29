@@ -63,6 +63,8 @@ const Summary = mongoose.model('Summary', summarySchema);
 // Middleware to authenticate and authorize users based on JWT
 function authenticate(req, res, next) {
     const token = req.headers['authorization']?.split(' ')[1];
+    //Authorization: Bearer <JWT_TOKEN>
+    //split(' ')[1]: Splits the string on the space ( ) and retrieves the token part (<JWT_TOKEN>).
     if (!token) {
         return res.status(401).json({ error: 'Access denied. No token provided.' });
     }
