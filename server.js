@@ -11,7 +11,13 @@ const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3002; // Change the port number if necessary
-const JWT_SECRET = 'your_secret_key'; // Use environment variables in production
+const JWT_SECRET = process.env.JWT_SECRET || 'your_secret_key'; // Use environment variables in production
+//const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/expense';
+const MONGO_URI = process.env.MONGO_URI;
+if (!process.env.MONGO_URI || !process.env.JWT_SECRET) {
+    console.error('Missing environment variables. Please check your .env file.');
+    process.exit(1);
+}
 
 app.use(cors());
 app.use(express.json());
@@ -20,11 +26,20 @@ app.use(bodyParser.json()); // Ensure JSON body parsing
 app.use(categorizeRoutes);
 
 // MongoDB connection
-mongoose.connect('mongodb://localhost:27017/expense', {
+/*mongoose.connect('mongodb://localhost:27017/expense', {
     // Options like `useNewUrlParser` and `useUnifiedTopology` are no longer needed.
   })
     .then(() => console.log('Connected to MongoDB'))
-    .catch((err) => console.error('MongoDB connection error:', err));
+    .catch((err) => console.error('MongoDB connection error:', err));*/
+    console.log('MONGO_URI:', process.env.MONGO_URI);
+    mongoose.connect(process.env.MONGO_URI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      })
+      .then(() => console.log('Connected to Atlas!'))
+      .catch((err) => console.error(err));
+   
+      
 
 // User model
 const userSchema = new mongoose.Schema({
