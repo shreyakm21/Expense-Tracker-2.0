@@ -5,7 +5,7 @@ document.getElementById('budget-form').addEventListener('submit', async (event) 
     const token = localStorage.getItem('token');
 
     try {
-        const response = await fetch('http://localhost:3002/api/user/budget', {
+        const response = await fetch('https://expense-tracker-2-0-6xlq.onrender.com/api/user/budget', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,

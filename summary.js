@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     try {
         // Fetch the summary data from the server
-        const response = await fetch(`http://localhost:3002/api/getSummary`, {
+        const response = await fetch(`https://expense-tracker-2-0-6xlq.onrender.com/api/getSummary`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     console.log("Sending expense data:", expenseDescriptions);
             
                     try {
-                        const modelResponse = await fetch(`http://localhost:3002/api/categorize-expenses`, {
+                        const modelResponse = await fetch(`https://expense-tracker-2-0-6xlq.onrender.com/api/categorize-expenses`, {
                             method: 'POST',
                             headers: {
                                 'Authorization': `Bearer ${token}`,
@@ -141,7 +141,7 @@ async function restartTracking() {
     const token = localStorage.getItem('token');
 
     try {
-        const response = await fetch('http://localhost:3002/api/restartTracking', {
+        const response = await fetch('https://expense-tracker-2-0-6xlq.onrender.com/api/restartTracking', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,

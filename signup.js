@@ -4,7 +4,7 @@ document.getElementById('signup-form').addEventListener('submit', async (event) 
     const password = document.getElementById('signup-password').value;
 
     try {
-        const response = await fetch('http://localhost:3002/api/signup', {
+        const response = await fetch('https://expense-tracker-2-0-6xlq.onrender.com/api/signup', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

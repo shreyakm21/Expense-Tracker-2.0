@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Fetch user data from the server
     try {
-        const response = await fetch(`http://localhost:3002/api/user/${username}`, {
+        const response = await fetch(`https://expense-tracker-2-0-6xlq.onrender.com/api/user/${username}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -78,7 +78,7 @@ async function addExpense(event) {
     const username = localStorage.getItem('userName');
 
     // Fetch the user's current total expenses
-    const response = await fetch(`http://localhost:3002/api/user/expenses/${username}`, {
+    const response = await fetch(`https://expense-tracker-2-0-6xlq.onrender.com/api/user/expenses/${username}`, {
         method: 'GET',
         headers: { 'Authorization': `Bearer ${token}` }
     });
@@ -86,7 +86,7 @@ async function addExpense(event) {
     const currentTotal = expenses.reduce((sum, expense) => sum + expense.amount, 0);
 
     // Check if adding this expense exceeds the budget
-    const userResponse = await fetch(`http://localhost:3002/api/user/${username}`, {
+    const userResponse = await fetch(`https://expense-tracker-2-0-6xlq.onrender.com/api/user/${username}`, {
         method: 'GET',
         headers: { 'Authorization': `Bearer ${token}` }
     });
@@ -106,7 +106,7 @@ async function addExpense(event) {
 
     // Add expense to the backend
     try {
-        const addExpenseResponse = await fetch('http://localhost:3002/api/user/expenses', {
+        const addExpenseResponse = await fetch('https://expense-tracker-2-0-6xlq.onrender.com/api/user/expenses', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -131,7 +131,7 @@ async function deleteExpense(expenseId) {
     const username = localStorage.getItem('userName');
 
     try {
-        const response = await fetch(`http://localhost:3002/api/user/expenses/${username}/${expenseId}`, {
+        const response = await fetch(`https://expense-tracker-2-0-6xlq.onrender.com/api/user/expenses/${username}/${expenseId}`, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -155,7 +155,7 @@ async function clearAllExpenses() {
     const username = localStorage.getItem('userName');
 
     try {
-        const response = await fetch(`http://localhost:3002/api/user/expenses/${username}`, {
+        const response = await fetch(`https://expense-tracker-2-0-6xlq.onrender.com/api/user/expenses/${username}`, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -181,7 +181,7 @@ async function clearAllExpenses() {
 async function renderExpenses() {
     const token = localStorage.getItem('token');
     const username = localStorage.getItem('userName');
-    const response = await fetch(`http://localhost:3002/api/user/expenses/${username}`, {
+    const response = await fetch(`https://expense-tracker-2-0-6xlq.onrender.com/api/user/expenses/${username}`, {
         method: 'GET',
         headers: { 'Authorization': `Bearer ${token}` }
     });
@@ -224,7 +224,7 @@ async function markAsDone() {
     const token = localStorage.getItem('token');
     //const username = localStorage.getItem('userName');
     try {
-        const response = await fetch('http://localhost:3002/api/markAsDone', {
+        const response = await fetch('https://expense-tracker-2-0-6xlq.onrender.com/api/markAsDone', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
