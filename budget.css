@@ -106,3 +106,24 @@ button:hover {
     background-color: #e36e51;
 }
 
+@media (max-width: 480px) {
+    .container {
+        width: 90%;
+        padding: 1.5rem;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    input {
+        font-size: 0.9rem;
+        padding: 0.6rem;
+    }
+
+    button {
+        font-size: 0.9rem;
+        padding: 0.6rem;
+    }
+}
+

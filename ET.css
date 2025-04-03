@@ -248,3 +248,70 @@ tbody td {
 #user-budget {
     transition: all 0.3s ease-in-out;
 }
+
+@media (max-width: 768px) {
+    .container {
+        max-width: 90%;
+        height: auto;
+        padding: 1rem;
+    }
+
+    #date {
+        font-size: 20px;
+        margin-right: 10px;
+    }
+
+    #taskbar {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    button {
+        width: 100%;
+    }
+
+    form {
+        flex-direction: column;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+        width: 100%;
+        font-size: 1rem;
+    }
+
+    .expense-table table {
+        font-size: 0.9rem;
+    }
+
+    .expense-table th,
+    .expense-table td {
+        padding: 6px;
+    }
+
+    #logoutBtn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    .expense-table {
+        overflow-x: auto;
+    }
+
+    .expense-table table {
+        width: 100%;
+        font-size: 0.8rem;
+    }
+
+    button {
+        font-size: 0.9rem;
+        padding: 0.6rem;
+    }
+}
