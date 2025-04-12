@@ -1,5 +1,8 @@
 # Expense Tracker 2.0
 
+##Try it out
+https://expense-tracker-2-0-1-axm0.onrender.com/
+
 ## Overview
 
 The **Expense Tracker** is a web-based application designed to help users manage their personal finances effectively. Built using HTML, CSS, JavaScript, Node.js, Express.js, and MongoDB, this application allows users to sign up, log in, set budgets, record expenses, categorize expenses, and view detailed expense summaries with visual insights.
